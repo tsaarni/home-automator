@@ -1,0 +1,19 @@
+global:
+    location:
+      latitude: 60.4518
+      longitude: 22.2666
+    timezone: Europe/Helsinki
+actions:
+- type: mqtt-timer
+  config:
+    server: localhost
+    topic: zigbee2mqtt/powerplug-terrace/set
+    schedule:
+      - payload: '{"state": "ON"}'
+        time: dusk
+      - payload: '{"state": "OFF"}'
+        time: "23:30"
+      - payload: '{"state": "ON"}'
+        time: "6:00"
+      - payload: '{"state": "OFF"}'
+        time: sunrise
