@@ -17,3 +17,9 @@ actions:
         time: "6:00"
       - payload: '{"state": "OFF"}'
         time: sunrise
+- type: thermostat
+  config:
+    topic: zwave/thermostat-bathroom/67/0/setpoint/1
+    setback:
+      temperature: 18
+      delay: 3h

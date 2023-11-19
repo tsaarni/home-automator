@@ -9,6 +9,9 @@ This project is a home automation server, which runs various services to control
 - MQTT timer: Publishes MQTT messages at a specified times of the day.
   It supports sunrise/sunset times as defined by [astral](https://astral.readthedocs.io/en/latest/) module.
   It can be used to control lights, for example.
+- Thermostat controller: Controls a thermostat setpoint based on events.
+  Currently, it can set the temperature to a "setback" value after specified delay.
+  It is used to set default settings back after adjusting temperature manually, for example when taking a shower.
 
 ## Development
 
@@ -29,5 +32,5 @@ python3 app/main.py --config config.yaml
 Build the container image:
 
 ```bash
-docker build -t home-automator:latest .
+docker build -t quay.io/tsaarni/home-automator:latest .
 ```

@@ -70,18 +70,18 @@ class MqttTimer(object):
         while True:
             schedule = self.resolve_schedule()
             try:
-                await self.set_state(schedule)
+                await self.publish(schedule)
             except Exception as e:
                 logger.exception("Error:", exc_info=e)
 
             # Schedule next event.
             await utils.wait_until([dt["time"] for dt in schedule])
 
-    async def set_state(self, schedule):
+    async def publish(self, schedule):
         now = datetime.datetime.now().time()
         effective_schedule = self.get_effective_schedule_entry(now, schedule)
 
-        # Publish the state to the MQTT broker.
+        # Publish the scheduled message to the MQTT broker.
         logger.info(f"Publish topic={self.topic} payload={effective_schedule['payload']}")
         async with aiomqtt.Client(hostname=self.server) as mqtt_client:
             await mqtt_client.publish(self.topic, effective_schedule["payload"])

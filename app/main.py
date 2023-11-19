@@ -16,7 +16,7 @@ with open("logging.yaml") as f:
 logger = logging.getLogger("app.main")
 
 # Dummy import to make sure all task classes are registered.
-import mqtttimer as mqtttimer
+import mqtttimer, thermostat
 
 
 class Application(object):
