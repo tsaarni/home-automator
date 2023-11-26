@@ -2,7 +2,6 @@ import asyncio
 import datetime
 import json
 import logging
-from typing import Coroutine
 
 import aiomqtt
 import task
@@ -36,7 +35,7 @@ class Thermostat(object):
             async with client.messages() as messages:
                 await client.subscribe(self.topic)
 
-                pending = [anext(messages)]
+                pending = [asyncio.create_task(anext(messages))]
                 while True:
                     done, pending = await asyncio.wait(pending, return_when=asyncio.FIRST_COMPLETED)
                     for result in done:
@@ -44,9 +43,13 @@ class Thermostat(object):
                         if isinstance(c, aiomqtt.Message):
                             payload = parse_message(c)
                             if self.should_schedule_setback(payload["value"]):
-                                pending.add(self.set_temperature_delayed(client, self.setback_delay.total_seconds()))
+                                pending.add(
+                                    asyncio.create_task(
+                                        self.set_temperature_delayed(client, self.setback_delay.total_seconds())
+                                    )
+                                )
                                 # Wait for the next message from the thermostat.
-                            pending.add(anext(messages))
+                            pending.add(asyncio.create_task(anext(messages)))
 
     def should_schedule_setback(self, current_temperature):
         res = False
@@ -84,11 +87,6 @@ def parse_message(message):
     logger.debug(f"Received topic={topic} payload={payload_dbg}")
 
     return payload
-
-
-def cancel_tasks(tasks):
-    for task in tasks:
-        task.cancel()
 
 
 task.register(Thermostat, "thermostat")

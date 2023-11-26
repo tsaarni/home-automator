@@ -32,5 +32,6 @@ python3 app/main.py --config config.yaml
 Build the container image:
 
 ```bash
-docker build -t quay.io/tsaarni/home-automator:latest .
+podman build -t quay.io/tsaarni/home-automator:latest .
+podman push quay.io/tsaarni/home-automator:latest
 ```
