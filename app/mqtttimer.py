@@ -1,3 +1,4 @@
+import asyncio
 import datetime
 import logging
 from typing import Dict, List
@@ -73,6 +74,7 @@ class MqttTimer(object):
                 await self.publish(schedule)
             except Exception as e:
                 logger.exception("Error:", exc_info=e)
+                await asyncio.sleep(60)
 
             # Schedule next event.
             await utils.wait_until([dt["time"] for dt in schedule])

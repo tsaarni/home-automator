@@ -55,3 +55,23 @@ async def retry_until_successful(func, max_retries=5):
             delay = min(delay, 60 * 5)  # Limit to 5 minutes.
 
     raise Exception(f"Failed after {max_retries} retries")
+
+
+def parse_timedelta(interval: str):
+    """Parse a time interval string into a timedelta.
+
+    :param interval: The interval string. For example, "5m" for 5 minutes. Supported units are "s", "m", "h", and "d".
+    :return: The timedelta.
+    """
+    unit = interval[-1]
+    value = int(interval[:-1])
+    if unit == "s":
+        return datetime.timedelta(seconds=value)
+    elif unit == "m":
+        return datetime.timedelta(minutes=value)
+    elif unit == "h":
+        return datetime.timedelta(hours=value)
+    elif unit == "d":
+        return datetime.timedelta(days=value)
+    else:
+        raise ValueError(f"Invalid unit: {unit}")
