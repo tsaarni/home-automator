@@ -34,7 +34,7 @@ class MqttTimer(object):
         self.resolve_schedule()
 
     def resolve_schedule(self):
-        # Convert configured times into datetime.time.
+        "Convert configured times into datetime.time."
         resolved = []
         for entry in self.schedule:
             time = entry["time"]
@@ -44,7 +44,8 @@ class MqttTimer(object):
             except ValueError:
                 # If it did not succeed then attempt to resolve sunrise/sunset times into local time.
                 s = astral.sun.sun(self.city.observer, date=datetime.datetime.now().date(), tzinfo=self.city.timezone)
-                resolved_time = s[time].time()
+                # Approximate the time to the nearest minute to debounce.
+                resolved_time = datetime.time(hour=s[time].hour, minute=s[time].minute)
 
             resolved.append(
                 {
@@ -77,7 +78,10 @@ class MqttTimer(object):
                 await asyncio.sleep(60)
 
             # Schedule next event.
-            await utils.wait_until([dt["time"] for dt in schedule])
+            delay, dt = utils.next_wakeup([dt["time"] for dt in schedule])
+            delay += 1  # add extra second to debounce.
+            logger.info(f"Sleeping until {dt} ({delay} seconds)")
+            await asyncio.sleep(delay)
 
     async def publish(self, schedule):
         now = datetime.datetime.now().time()

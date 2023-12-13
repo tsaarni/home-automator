@@ -26,7 +26,7 @@ pip install -r requirements.txt
 Execute the application:
 
 ```bash
-python3 app/main.py --config config.yaml
+python3 src/main.py --config config.yaml
 ```
 
 Build the container image:

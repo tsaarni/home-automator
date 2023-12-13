@@ -42,17 +42,18 @@ class Thermostat(object):
                         c = result.result()
                         if isinstance(c, aiomqtt.Message):
                             payload = parse_message(c)
-                            if self.should_schedule_setback(payload["value"]):
+                            # Schedule a setback if the current temperature is different from the target temperature
+                            # and timer is not already running.
+                            if self.should_schedule_setback(payload["value"]) and not pending:
                                 pending.add(
                                     asyncio.create_task(
                                         self.set_temperature_delayed(client, self.setback_delay.total_seconds())
                                     )
                                 )
-                                # Wait for the next message from the thermostat.
+                            # Wait for the next message from the thermostat.
                             pending.add(asyncio.create_task(anext(messages)))
 
     def should_schedule_setback(self, current_temperature):
-        res = False
         if current_temperature == self.target_temperature:
             res = False
         elif current_temperature != self.effective_temperature:
