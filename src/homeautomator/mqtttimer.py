@@ -71,17 +71,13 @@ class MqttTimer(object):
         logger.info(f"Starting MqttTimer instance_name={self.instance_name}")
         while True:
             schedule = self.resolve_schedule()
-            try:
-                await self.publish(schedule)
-            except Exception as e:
-                logger.exception("Error:", exc_info=e)
-                await asyncio.sleep(60)
+            await self.publish(schedule)
 
             # Schedule next event.
             delay, dt = utils.next_wakeup([dt["time"] for dt in schedule])
-            delay += 1  # add extra second to debounce.
+            delay += datetime.timedelta(seconds=1)  # add extra second to debounce.
             logger.info(f"Sleeping until {dt} ({delay} seconds)")
-            await asyncio.sleep(delay)
+            await asyncio.sleep(delay.total_seconds())
 
     async def publish(self, schedule):
         now = datetime.datetime.now().time()

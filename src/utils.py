@@ -1,12 +1,13 @@
 import asyncio
 import datetime
 import logging
+import random
 from typing import List
 
 logger = logging.getLogger("app.utils")
 
 
-def next_wakeup(schedule: List[datetime.time]) -> tuple[float, datetime.datetime]:
+def next_wakeup(schedule: List[datetime.time]) -> tuple[datetime.timedelta, datetime.datetime]:
     """Calculate next scheduled wakeup time.
 
     :param schedule: Array of times to wake up at.
@@ -29,7 +30,7 @@ def next_wakeup(schedule: List[datetime.time]) -> tuple[float, datetime.datetime
         # It was past all scheduled times, so schedule for earliest time tomorrow.
         next_wakeup = datetime.datetime.combine(now.date() + datetime.timedelta(days=1), schedule[0])
 
-    seconds_until_wakeup = (next_wakeup - now).total_seconds()
+    seconds_until_wakeup = next_wakeup - now
     return seconds_until_wakeup, next_wakeup
 
 
@@ -54,7 +55,7 @@ async def retry_until_successful(func, max_retries=5):
     raise Exception(f"Failed after {max_retries} retries")
 
 
-def parse_timedelta(interval: str):
+def parse_timedelta(interval: str) -> datetime.timedelta:
     """Parse a time interval string into a timedelta.
 
     :param interval: The interval string. For example, "5m" for 5 minutes. Supported units are "s", "m", "h", and "d".
@@ -72,3 +73,13 @@ def parse_timedelta(interval: str):
         return datetime.timedelta(days=value)
     else:
         raise ValueError(f"Invalid unit: {unit}")
+
+
+def random_jitter(interval: datetime.timedelta, jitter: float = 0.1) -> datetime.timedelta:
+    """Add a random jitter to a timedelta.
+
+    :param interval: The timedelta to add jitter to.
+    :param jitter: The amount of jitter to add, as a percentage of the interval.
+    :return: The jittered timedelta.
+    """
+    return interval * (1 + (random.random() * 2 - 1) * jitter)
