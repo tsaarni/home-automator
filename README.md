@@ -13,6 +13,11 @@ This project is a home automation server, which runs various services to control
   Currently, it can set the temperature to a "setback" value after specified delay.
   It is used to set default settings back after adjusting temperature manually, for example when taking a shower.
 
+
+The application is configured using a YAML file [config-example.yaml](config-example.yaml).
+
+
+
 ## Development
 
 Install dependencies with:

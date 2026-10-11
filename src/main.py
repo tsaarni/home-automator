@@ -5,8 +5,9 @@ import asyncio
 import logging.config
 import sys
 
-import task
 import yaml
+
+import task
 
 # Configure logger.
 with open("logging.yaml") as f:
@@ -36,7 +37,7 @@ class Application(object):
 
         # Instantiate task classes that are requested in the configuration file.
         self.tasks = []
-        for s in config["actions"]:
+        for s in config["tasks"]:
             # Combine global config with task-specific config.
             task_config = s["config"]
             if "global" in config:

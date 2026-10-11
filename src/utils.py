@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import logging
 import random
+import re
 from typing import List
 
 logger = logging.getLogger("app.utils")
@@ -83,3 +84,48 @@ def random_jitter(interval: datetime.timedelta, jitter: float = 0.1) -> datetime
     :return: The jittered timedelta.
     """
     return interval * (1 + (random.random() * 2 - 1) * jitter)
+
+
+def parse_numeric_value(value_str):
+    """Parse a numeric value from a string, stripping units.
+
+    Strips trailing alphabetic characters and units like %, then converts to float.
+    Returns original value if it's already numeric or cannot be parsed.
+
+    :param value_str: The value to parse (can be int, float, or string with units).
+    :return: Numeric value (float) or original string if not parseable.
+    """
+    if isinstance(value_str, (int, float)):
+        return value_str
+    clean_value = re.sub(r"[a-zA-Z%]+$", "", str(value_str))
+    try:
+        return float(clean_value)
+    except ValueError:
+        return value_str
+
+
+def interpolate_curve(x: float, points: List[List[float]]) -> float:
+    """Perform linear interpolation on a curve defined by points.
+
+    :param x: The input value to interpolate.
+    :param points: List of [x, y] coordinate pairs defining the curve.
+    :return: The interpolated y value.
+    """
+    # Sort points by x coordinate
+    points.sort(key=lambda p: p[0])
+
+    # Clamp to edges if outside range
+    if x <= points[0][0]:
+        return points[0][1]
+    if x >= points[-1][0]:
+        return points[-1][1]
+
+    # Find the two points to interpolate between
+    for i in range(len(points) - 1):
+        p1, p2 = points[i], points[i + 1]
+        if p1[0] <= x <= p2[0]:
+            # Linear interpolation: y = y1 + (x - x1) * (y2 - y1) / (x2 - x1)
+            t = (x - p1[0]) / (p2[0] - p1[0])
+            return p1[1] + t * (p2[1] - p1[1])
+
+    return points[0][1]
